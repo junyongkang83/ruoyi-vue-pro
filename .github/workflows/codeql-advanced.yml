@@ -1,0 +1,34 @@
+name: "CodeQL Advanced"
+on:
+  push:
+    branches: ["master"]
+  workflow_dispatch:
+permissions:
+  security-events: write
+  contents: read
+  actions: read
+jobs:
+  analyze:
+    name: Analyze Java
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "8"
+          cache: maven
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java-kotlin
+          build-mode: manual
+      - name: Build (full reactor)
+        run: mvn -B -ntp -DskipTests -Dmaven.test.skip=true clean package
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:java-kotlin"
